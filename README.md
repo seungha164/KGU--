@@ -8,7 +8,7 @@
 - Framework : android studio
 ### Install
 ```
-	git clone https://github.com/seungha164/KGU-dormitory-cafeteria-menu-application.git
+git clone https://github.com/seungha164/KGU-dormitory-cafeteria-menu-application.git
 ```
 ### Workflow
 ![kgu_menu](https://user-images.githubusercontent.com/87134443/199656864-5ef24f4b-43c9-43a0-b740-5ea6336fa720.gif)
