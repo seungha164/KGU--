@@ -23,7 +23,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class MainActivity extends AppCompatActivity {
-
+    private String homepageUrl = "https://dorm.kyonggi.ac.kr:446/Khostel/mall_main.php?viewform=B0001_foodboard_list&board_no=1";
     List<Menu> menuList;    // 메뉴 리스트
     private int pointerW;     // 현재 가리키는 요일
 
@@ -33,6 +33,25 @@ public class MainActivity extends AppCompatActivity {
     TextView tvD1,tvD2,tvD3,tvD4,tvD5,tvD6;
     List<TextView> lunchViews,dinnerViews;
 
+    Menu getDayMenu(Element targetDay){
+        Menu m = new Menu();
+        Elements one = targetDay.getElementsByTag("td");    // one[0] : 아침, one[1] : 점심, one[2] : 저녁
+        m.setLunch(getSingleMenu(one.get(1).text()));   // lunch
+        m.setDinner(getSingleMenu(one.get(2).text()));   // dinner
+        m.setDate(targetDay.select("th").text());   // 날짜
+        return m;
+    }
+    List<String> getSingleMenu(String target){
+        if(target==null || target.length()<1 || target.contentEquals("미운영"))
+            return null;
+        int sIdx = target.indexOf("쌀밥");
+        String[] con2 = target.substring(sIdx).split(" ");
+        ArrayList<String> targetMenu = new ArrayList<>();
+        for(int i=0;i<con2.length;i++){
+            targetMenu.add(con2[i]);
+        }
+        return targetMenu;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,33 +97,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String url = "https://dorm.kyonggi.ac.kr:446/Khostel/mall_main.php?viewform=B0001_foodboard_list&board_no=1";
-                    Document doc = Jsoup.connect(url).get();
+                    Document doc = Jsoup.connect(homepageUrl).get();
                     Log.d("MyActivity","==================");
-                    Elements content = doc.select("tr");
-
-                    int cnt = 0;
+                    Elements boxstyle02 = doc.getElementsByClass("boxstyle02").get(1).select("tbody");
+                    Elements days = boxstyle02.get(0).select("tr");     // 총 7개(일~토) 가져옴
+                    System.out.println(days.size()+"");
                     List<Menu> datas = new ArrayList<>();
-                    for(Element e:content){
-                        if(cnt++<32 || cnt>39) continue;
-                        String date = e.select("th").text();
-                        String con = e.select("td").text();
-
-                        Menu m = new Menu();
-                        m.setDate(date);
-                        List<String> lunch = new ArrayList<>();
-                        List<String> dinner = new ArrayList<>();
-                        if(con!=null && con.length()>0){
-                            String[] con2 = con.split(" ");
-                            Log.d("MyActivity","내용 : "+con);
-                            for(int i=1;i<7;i++)
-                                lunch.add(con2[i]);
-
-                            for(int i=7;i<13;i++)
-                                dinner.add(con2[i]);
-                        }
-                        m.setLunch(lunch);
-                        m.setDinner(dinner);
+                    for(int i=0;i<7;i++){   // days[1]:월 ~ days[6]:토 까지만 사용할 것
+                        Element day = days.get(i);
+                        Menu m = getDayMenu(day);
                         datas.add(m);
                     }
                     // main thread로 보내기
@@ -134,29 +135,31 @@ public class MainActivity extends AppCompatActivity {
     };
     void draw_Menu(){
         Menu menu = menuList.get(pointerW);
+        // 날짜 draw
         tvDate.setText(menu.getDate());
 
-        if(menu.lunch.size()==0){
+        if(menu.getLunch()==null){
             for(int i=0; i<6; i++){
                 lunchViews.get(i).setText("");
             }
-            tvL3.setText(" 제공되는 식사가 없습니다 ");
+            lunchViews.get(2).setText("미운영");
         }
         else{
             for(int i=0; i<menu.lunch.size(); i++){
                 lunchViews.get(i).setText(menu.lunch.get(i));
             }
         }
-        if(menu.dinner.size()==0){
+        if(menu.getDinner()==null){
             for(int i=0; i<6; i++){
                 dinnerViews.get(i).setText("");
             }
-            tvD3.setText(" 제공되는 식사가 없습니다 ");
+            dinnerViews.get(2).setText("미운영");
         }
         else{
             for(int i=0; i<menu.dinner.size(); i++){
                 dinnerViews.get(i).setText(menu.dinner.get(i));
             }
+            tvD3.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         }
     }
 }
