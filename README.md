@@ -7,6 +7,8 @@
 - Language : Java
 - Framework : android studio
 ### Install
-- apk : https://drive.google.com/file/d/18VcbD0q1V_rXAD5xjzuarDXY1tyrn2N6/view?usp=share_link
+```
+	git clone https://github.com/seungha164/KGU-dormitory-cafeteria-menu-application.git
+```
 ### Workflow
 ![kgu_menu](https://user-images.githubusercontent.com/87134443/199656864-5ef24f4b-43c9-43a0-b740-5ea6336fa720.gif)
