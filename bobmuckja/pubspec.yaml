@@ -38,6 +38,7 @@ dependencies:
   http: ^1.1.0
   html: ^0.15.4
   cp949_codec: ^1.0.1
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   flutter_test:

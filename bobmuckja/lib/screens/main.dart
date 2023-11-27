@@ -6,6 +6,7 @@ import 'package:html/dom.dart' as dom;
 import '../models/model.dart';
 import '../widgets/appbar.dart';
 import '../widgets/text.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class BaseWidget extends StatefulWidget{
   const BaseWidget({Key?key}):super(key:key);
@@ -16,7 +17,7 @@ class _BaseWidget extends State<BaseWidget>{
 
   late Future futureMenu;
   List<TodayMenu> weekMenus= [];
-  int cIdx = 1;
+
   @override
   void initState() {    // 초기 호출 메서드
     // TODO: implement initState
@@ -61,6 +62,7 @@ class _BaseWidget extends State<BaseWidget>{
     }
     return 1;
   }
+  CarouselController carouselController = CarouselController();
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,6 @@ class _BaseWidget extends State<BaseWidget>{
         width: double.infinity,
         height: double.infinity,
         color: const Color(0xffECE3CE),
-        padding: const EdgeInsets.all(20),
         child: FutureBuilder(
             future: futureMenu,
             builder: (BuildContext context, AsyncSnapshot snapshot){
@@ -83,103 +84,115 @@ class _BaseWidget extends State<BaseWidget>{
                 return label('Error: ${snapshot.error}', 'bold', 15, 'base100');
               }
               else{
-                TodayMenu today = weekMenus[cIdx];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: IconButton(
-                              onPressed: (){
-                                setState(() {
-                                  cIdx = (0 < cIdx) ? (cIdx - 1) : cIdx;
-                                });
-                              },
-                              icon: const Icon(Icons.keyboard_arrow_left, color: Color(0xff3A4D39), size: 35)
-                          ),
-                        ),
-                        Expanded(
-                            flex: 6,
-                            child: Center(
-                                child: label(today.today, 'extra-bold', 20, 'base100')
-                            )
-                        ),
-                        Expanded(
-                            flex: 1,
-                            child: IconButton(
-                                onPressed: (){
-                                  setState(() {
-                                    cIdx = (cIdx < weekMenus.length-1) ? (cIdx + 1) : cIdx;
-                                  });
-                                },
-                                icon: const Icon(Icons.keyboard_arrow_right, color: Color(0xff3A4D39), size: 35)
-                            )
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(15),
-                      height: 280,
-                      decoration: BoxDecoration(
-                            color: const Color(0xfffffaf5),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.7),
-                                blurRadius: 5.0,
-                                spreadRadius: 0.0,
-                                offset: const Offset(0,3),
+                return Container(
+                  padding: const EdgeInsets.only(top: 25),
+                  child: CarouselSlider(
+                    carouselController: carouselController,
+                    items: [0, 1, 2, 3, 4, 5, 6].map((i) {
+                      TodayMenu today = weekMenus[i];
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return Column(
+                            children: [
+                              Center(
+                                  child: label(today.today, 'extra-bold', 20, 'base100')
+                              ),
+                              const SizedBox(height: 20),
+                              Container(
+                                padding: const EdgeInsets.all(15),
+                                height: 280,
+                                decoration: BoxDecoration(
+                                    color: const Color(0xfffffaf5),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.7),
+                                        blurRadius: 5.0,
+                                        spreadRadius: 0.0,
+                                        offset: const Offset(0,3),
+                                      )
+                                    ]
+                                ),
+                                child: Column(
+                                  children: [
+                                    label('점심', 'extra-bold', 18, 'primary'),
+                                    const Divider(thickness: 1),
+                                    drawTimes(today.lunch)
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Container(
+                                padding: const EdgeInsets.all(15),
+                                height: 280,
+                                decoration: BoxDecoration(
+                                    color: const Color(0xffFFFBF5),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.7),
+                                        blurRadius: 5.0,
+                                        spreadRadius: 0.0,
+                                        offset: const Offset(0,3),
+                                      )
+                                    ]
+                                ),
+                                child: Column(
+                                  children: [
+                                    label('저녁', 'extra-bold', 18, 'primary'),
+                                    const Divider(thickness: 1),
+                                    drawTimes(today.dinner)
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(right: 15, top: 5),
+                                  child: label('made by nute11a \u{1F36B}', 'regular', 15, 'base60')
                               )
-                            ]
-                        ),
-                      child: Column(
-                        children: [
-                          label('점심', 'extra-bold', 18, 'primary'),
-                          const Divider(thickness: 1),
-                          drawTimes(today.lunch)
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(15),
-                      height: 280,
-                      decoration: BoxDecoration(
-                          color: const Color(0xffFFFBF5),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.7),
-                                blurRadius: 5.0,
-                                spreadRadius: 0.0,
-                                offset: const Offset(0,3),
-                              )
-                            ]
-                        ),
-                      child: Column(
-                        children: [
-                          label('저녁', 'extra-bold', 18, 'primary'),
-                          const Divider(thickness: 1),
-                          drawTimes(today.dinner)
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15, top: 5),
-                      child: label('made by nute11a \u{1F36B}', 'regular', 15, 'base60')
-                    )
-                  ],
-                );
+                            ],
+                          );
+                        },
+                      );
+                    }).toList(),
+                    options: CarouselOptions(
+                      height: double.infinity,
 
+                      // Set the size of each carousel item
+                      // if height is not specified
+                      aspectRatio: 16 / 9,
+
+                      // Set how much space current item widget
+                      // will occupy from current page view
+                      viewportFraction: 0.8,
+
+                      // Set the initial page
+                      initialPage: DateTime.now().weekday%7,
+
+                      // Set carousel to repeat when reaching the end
+                      enableInfiniteScroll: true,
+
+                      // Set carousel to scroll in opposite direction
+                      reverse: false,
+
+                      // Set the current page to be displayed
+                      // bigger than previous or next page
+                      enlargeCenterPage: true,
+
+                      // Do actions for each page change
+                      onPageChanged: (index, reason) {},
+
+                      // Set the scroll direction
+                      scrollDirection: Axis.horizontal,
+                    ),
+                  ),
+                );
               }
             }
         ),
       )
     );
   }
+
   drawTimes(List<String> menus){
     if(menus.isEmpty){
       return label('미운영', 'regular', 15, 'base100');
